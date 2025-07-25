@@ -28,6 +28,9 @@ const ctx = canvas.getContext('2d');
 // Variáveis do jogo
 let player, enemies, bullets, xp, xpMax, level, passives, gameOver, bossLevel;
 
+// ESCALA GLOBAL DOS SPRITES
+const SPRITE_SCALE = 2.5; // ajuste conforme necessário
+
 // Estrutura para sons (adicione arquivos .mp3 ou .wav na pasta e descomente para usar)
 // const sndAttack = new Audio('attack.wav');
 // const sndHit = new Audio('hit.wav');
@@ -39,12 +42,12 @@ let invincible = 0;
 function startGame() {
     // Inicializar variáveis
     player = {
-        x: canvas.width / 2,
-        y: canvas.height / 2,
-        w: 32,
-        h: 32,
-        speed: 3,
-        maxSpeed: 3,
+        x: 1000, // novo mundo maior
+        y: 1000,
+        w: 32 * SPRITE_SCALE,
+        h: 32 * SPRITE_SCALE,
+        speed: 3.2 * SPRITE_SCALE,
+        maxSpeed: 3.2 * SPRITE_SCALE,
         dx: 0,
         dy: 0,
         hp: 50,
@@ -71,27 +74,58 @@ function startGame() {
     requestAnimationFrame(gameLoop);
 }
 
+// Ajustar tipos de inimigos para escala
+const enemyTypes = [
+    {
+        name: 'Zumbi',
+        img: 'enemy zunbi.png',
+        w: 32 * SPRITE_SCALE, h: 32 * SPRITE_SCALE,
+        baseHp: 30, baseSpeed: 2, baseDamage: 7
+    },
+    {
+        name: 'Morcego',
+        img: 'enemy bat.png',
+        w: 28 * SPRITE_SCALE, h: 20 * SPRITE_SCALE,
+        baseHp: 18, baseSpeed: 3, baseDamage: 5
+    },
+    {
+        name: 'Lava Man',
+        img: 'enemy lava man.png',
+        w: 36 * SPRITE_SCALE, h: 36 * SPRITE_SCALE,
+        baseHp: 40, baseSpeed: 1.7, baseDamage: 10
+    }
+];
+// Carregar imagens dos inimigos
+for (const type of enemyTypes) {
+    const image = new Image();
+    image.src = type.img;
+    images[type.img] = image;
+}
+
 function spawnEnemies() {
-    // Spawna inimigos normais ou chefe
     const num = (level % bossLevel === 0) ? 1 : Math.min(3 + level, 10);
     for (let i = 0; i < num; i++) {
         let isBoss = (level % bossLevel === 0);
+        // Escolher tipo de inimigo aleatório
+        let type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
         // Spawn nas bordas
         let edge = Math.floor(Math.random() * 4);
         let x, y;
         if (edge === 0) { x = 0; y = Math.random() * canvas.height; }
-        else if (edge === 1) { x = canvas.width - (isBoss ? 64 : 32); y = Math.random() * canvas.height; }
+        else if (edge === 1) { x = canvas.width - (isBoss ? 64 * SPRITE_SCALE : type.w); y = Math.random() * canvas.height; }
         else if (edge === 2) { x = Math.random() * canvas.width; y = 0; }
-        else { x = Math.random() * canvas.width; y = canvas.height - (isBoss ? 64 : 32); }
+        else { x = Math.random() * canvas.width; y = canvas.height - (isBoss ? 64 * SPRITE_SCALE : type.h); }
         enemies.push({
             x, y,
-            w: isBoss ? 64 : 32,
-            h: isBoss ? 64 : 32,
-            hp: isBoss ? 100 + level * 20 : 20 + level * 5,
-            maxHp: isBoss ? 100 + level * 20 : 20 + level * 5,
-            speed: isBoss ? 1.5 : 2 + level * 0.1,
-            damage: isBoss ? 20 : 5 + level,
+            w: isBoss ? 64 * SPRITE_SCALE : type.w,
+            h: isBoss ? 64 * SPRITE_SCALE : type.h,
+            hp: isBoss ? 100 + level * 20 : type.baseHp + level * 5,
+            maxHp: isBoss ? 100 + level * 20 : type.baseHp + level * 5,
+            speed: isBoss ? 1.5 : type.baseSpeed + level * 0.1,
+            damage: isBoss ? 20 : type.baseDamage + level,
             isBoss,
+            type: type.name,
+            img: type.img
         });
     }
 }
@@ -186,7 +220,7 @@ function attackWithSword() {
             (player.x + player.w/2) - (enemy.x + enemy.w/2),
             (player.y + player.h/2) - (enemy.y + enemy.h/2)
         );
-        if (dist < 50) {
+        if (dist < 80 * SPRITE_SCALE) { // alcance maior
             enemy.hp -= player.damage;
             flashEnemy(enemy);
             applyElementalEffect(enemy);
@@ -272,6 +306,18 @@ window.chooseUpgrade = function(idx) {
     choosingUpgrade = false;
     document.getElementById('ui').innerHTML = '';
 };
+
+// CÂMERA
+const WORLD_SIZE = 3000;
+let camera = { x: 0, y: 0 };
+
+function updateCamera() {
+    camera.x = player.x + player.w/2 - canvas.width/2;
+    camera.y = player.y + player.h/2 - canvas.height/2;
+    // Limitar câmera ao mundo
+    camera.x = Math.max(0, Math.min(WORLD_SIZE - canvas.width, camera.x));
+    camera.y = Math.max(0, Math.min(WORLD_SIZE - canvas.height, camera.y));
+}
 
 function update() {
     // Movimentação em 8 direções
@@ -402,35 +448,50 @@ function update() {
         }
     }
     // TODO: colisão, XP, passivas, etc.
+    updateCamera();
+}
+
+// DESENHAR CHÃO COM SPRITESHEET
+function drawFloor() {
+    const tileSize = 32;
+    const tileDrawSize = tileSize * SPRITE_SCALE;
+    const img = images.spritsheet;
+    // Supondo que o tile do chão está no canto superior esquerdo do spritesheet
+    for (let y = -tileDrawSize; y < canvas.height + tileDrawSize; y += tileDrawSize) {
+        for (let x = -tileDrawSize; x < canvas.width + tileDrawSize; x += tileDrawSize) {
+            ctx.drawImage(img, 0, 0, tileSize, tileSize, x, y, tileDrawSize, tileDrawSize);
+        }
+    }
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawFloor();
     // Desenhar jogador com flash se atingido
     if (playerHitFlash > 0) {
         ctx.save();
         ctx.globalAlpha = 0.7;
         ctx.fillStyle = 'red';
-        ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.fillRect(player.x - camera.x, player.y - camera.y, player.w, player.h);
         ctx.restore();
     }
     // Desenhar jogador
-    ctx.drawImage(images.player, player.x, player.y, player.w, player.h);
+    ctx.drawImage(images.player, player.x - camera.x, player.y - camera.y, player.w, player.h);
     // Desenhar inimigos com flash se atingidos
     for (let enemy of enemies) {
         if (enemy.flash && enemy.flash > 0) {
             ctx.save();
             ctx.globalAlpha = 0.7;
             ctx.fillStyle = 'red';
-            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+            ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y, enemy.w, enemy.h);
             ctx.restore();
         }
-        ctx.drawImage(images.enemy, enemy.x, enemy.y, enemy.w, enemy.h);
+        ctx.drawImage(images[enemy.img], enemy.x - camera.x, enemy.y - camera.y, enemy.w, enemy.h);
         // Barra de vida do inimigo
         ctx.fillStyle = 'red';
-        ctx.fillRect(enemy.x, enemy.y - 8, enemy.w, 5);
+        ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y - 8, enemy.w, 5);
         ctx.fillStyle = 'lime';
-        ctx.fillRect(enemy.x, enemy.y - 8, enemy.w * (enemy.hp/enemy.maxHp), 5);
+        ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y - 8, enemy.w * (enemy.hp/enemy.maxHp), 5);
     }
     // Desenhar balas
     ctx.fillStyle = 'yellow';
