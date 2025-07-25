@@ -100,9 +100,11 @@ function spawnEnemies() {
 const keys = {};
 window.addEventListener('keydown', (e) => {
     keys[e.key.toLowerCase()] = true;
+    keys[e.key] = true; // Garante que tanto minúsculo quanto maiúsculo sejam aceitos
 });
 window.addEventListener('keyup', (e) => {
     keys[e.key.toLowerCase()] = false;
+    keys[e.key] = false;
 });
 
 // Ataque do jogador
@@ -274,10 +276,10 @@ window.chooseUpgrade = function(idx) {
 function update() {
     // Movimentação em 8 direções
     let dx = 0, dy = 0;
-    if (keys['w'] || keys['arrowup']) dy -= 1;
-    if (keys['s'] || keys['arrowdown']) dy += 1;
-    if (keys['a'] || keys['arrowleft']) dx -= 1;
-    if (keys['d'] || keys['arrowright']) dx += 1;
+    if (keys['w'] || keys['W'] || keys['arrowup']) dy -= 1;
+    if (keys['s'] || keys['S'] || keys['arrowdown']) dy += 1;
+    if (keys['a'] || keys['A'] || keys['arrowleft']) dx -= 1;
+    if (keys['d'] || keys['D'] || keys['arrowright']) dx += 1;
     // Normalizar para diagonal
     if (dx !== 0 || dy !== 0) {
         const len = Math.sqrt(dx * dx + dy * dy);
