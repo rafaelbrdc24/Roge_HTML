@@ -5,7 +5,7 @@ const imageFiles = [
     { name: 'enemy', src: 'enemy.png' },
     { name: 'hud', src: 'HUD.png' },
     { name: 'objetos', src: 'objetos.png' },
-    { name: 'spritsheet', src: 'spritsheet.png' },
+    { name: 'spritesheet', src: 'spritesheet.png' },
 ];
 let loadedImages = 0;
 
@@ -455,7 +455,7 @@ function update() {
 function drawFloor() {
     const tileSize = 32;
     const tileDrawSize = tileSize * SPRITE_SCALE;
-    const img = images.spritsheet;
+    const img = images.spritesheet;
     // Supondo que o tile do chão está no canto superior esquerdo do spritesheet
     for (let y = -tileDrawSize; y < canvas.height + tileDrawSize; y += tileDrawSize) {
         for (let x = -tileDrawSize; x < canvas.width + tileDrawSize; x += tileDrawSize) {
