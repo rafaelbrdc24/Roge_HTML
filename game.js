@@ -452,21 +452,9 @@ function update() {
 }
 
 // DESENHAR CHÃO COM SPRITESHEET
-function drawFloor() {
-    const tileSize = 32;
-    const tileDrawSize = tileSize * SPRITE_SCALE;
-    const img = images.spritesheet;
-    // Supondo que o tile do chão está no canto superior esquerdo do spritesheet
-    for (let y = -tileDrawSize; y < canvas.height + tileDrawSize; y += tileDrawSize) {
-        for (let x = -tileDrawSize; x < canvas.width + tileDrawSize; x += tileDrawSize) {
-            ctx.drawImage(img, 0, 0, tileSize, tileSize, x, y, tileDrawSize, tileDrawSize);
-        }
-    }
-}
-
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawFloor();
+    // NÃO chamar drawFloor, fundo será preto
     // Desenhar jogador com flash se atingido
     if (playerHitFlash > 0) {
         ctx.save();
