@@ -6,6 +6,9 @@ const imageFiles = [
     { name: 'hud', src: 'HUD.png' },
     { name: 'objetos', src: 'objetos.png' },
     { name: 'spritesheet', src: 'spritesheet.png' },
+    { name: 'enemy bat', src: 'enemy bat.png' },
+    { name: 'enemy lava man', src: 'enemy lava man.png' },
+    { name: 'enemy zunbi', src: 'enemy zunbi.png' }
 ];
 let loadedImages = 0;
 
@@ -78,19 +81,19 @@ function startGame() {
 const enemyTypes = [
     {
         name: 'Zumbi',
-        img: 'enemy zunbi.png',
+        img: 'enemy zunbi',
         w: 32 * SPRITE_SCALE, h: 32 * SPRITE_SCALE,
         baseHp: 30, baseSpeed: 2, baseDamage: 7
     },
     {
         name: 'Morcego',
-        img: 'enemy bat.png',
+        img: 'enemy bat',
         w: 28 * SPRITE_SCALE, h: 20 * SPRITE_SCALE,
         baseHp: 18, baseSpeed: 3, baseDamage: 5
     },
     {
         name: 'Lava Man',
-        img: 'enemy lava man.png',
+        img: 'enemy lava man',
         w: 36 * SPRITE_SCALE, h: 36 * SPRITE_SCALE,
         baseHp: 40, baseSpeed: 1.7, baseDamage: 10
     }
