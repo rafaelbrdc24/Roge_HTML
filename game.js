@@ -76,7 +76,7 @@ function startGame() {
     requestAnimationFrame(gameLoop);
 }
 
-// Ajustar tipos de inimigos para escala
+// Tipos de inimigos
 const enemyTypes = [
     {
         name: 'Zumbi',
