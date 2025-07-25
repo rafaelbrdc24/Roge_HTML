@@ -2,7 +2,6 @@
 const images = {};
 const imageFiles = [
     { name: 'player', src: 'player.png' },
-    { name: 'enemy', src: 'enemy.png' },
     { name: 'hud', src: 'HUD.png' },
     { name: 'objetos', src: 'objetos.png' },
     { name: 'spritesheet', src: 'spritesheet.png' },
